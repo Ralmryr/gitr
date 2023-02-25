@@ -1,11 +1,11 @@
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct Node {
     message: String,
-    id: i32,
+    id: usize,
 }
 
 impl Node {
-    pub fn new(message: &str, id: i32) -> Self {
+    pub fn new(message: &str, id: usize) -> Self {
         Node {
             message: message.to_string(),
             id: id,
@@ -16,7 +16,7 @@ impl Node {
         println!("Node {} : {}", self.id, self.message);
     }
 
-    pub fn id(&self) -> i32 {
+    pub fn id(&self) -> usize {
         self.id
     }
 

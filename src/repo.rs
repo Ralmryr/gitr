@@ -1,9 +1,11 @@
 use crate::Branch;
 
+#[derive(Debug)]
 pub struct Repo {
     name: String,
     branch_list: Vec<Branch>,
     current_branch_idx: usize,
+    node_counter: usize,
 }
 
 impl Repo {
@@ -12,6 +14,7 @@ impl Repo {
             name: name.to_string(),
             branch_list: vec![Branch::default()],
             current_branch_idx: 0,
+            node_counter: 0,
         }
     }
 
@@ -24,11 +27,14 @@ impl Repo {
     }
 
     pub fn commit(&mut self, msg: &str) {
-        self.get_current_branch().commit(msg);
+        let new_node_id = self.node_counter;
+        self.get_current_branch().commit(msg, new_node_id);
+        self.node_counter += 1;
     }
 
     pub fn revert(&mut self) {
         self.get_current_branch().revert();
+        self.node_counter += 1;
     }
 
     pub fn checkout(&mut self, branch_name: &str) {
@@ -40,8 +46,10 @@ impl Repo {
         };
     }
 
-    pub fn branch(&mut self, branch_name: &str) {
-        self.branch_list.push(Branch::new(branch_name));
+    pub fn new_branch(&mut self, branch_name: &str) {
+        let new_branch = Branch::new(branch_name);
+
+        self.branch_list.push(new_branch);
         self.checkout(branch_name);
     }
 
