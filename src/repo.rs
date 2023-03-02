@@ -12,7 +12,7 @@ impl Repo {
     pub fn new(name: &str) -> Repo {
         Repo {
             name: name.to_string(),
-            branch_list: vec![Branch::default()],
+            branch_list: vec![Branch::new_master()],
             current_branch_idx: 0,
             node_counter: 0,
         }
@@ -22,18 +22,34 @@ impl Repo {
         println!("{}", self.name);
         println!("---------------------");
         for branch in &self.branch_list {
+            println!("Branch {}", branch.name);
+            self.print_branch_history_rec(branch);
             branch.print();
+            println!();
+        }
+    }
+
+    fn print_branch_history_rec(&self, branch: &Branch) {
+        match branch.parent_branch_name() {
+            Some(parent_name) => {
+                let parent_branch = self.get_branch_by_name(parent_name).unwrap().0;
+                self.print_branch_history_rec(parent_branch);
+                parent_branch.print_slice(branch.parent_node_id.unwrap());
+            }
+            None => {
+                return;
+            }
         }
     }
 
     pub fn commit(&mut self, msg: &str) {
         let new_node_id = self.node_counter;
-        self.get_current_branch().commit(msg, new_node_id);
+        self.current_branch_mut().commit(msg, new_node_id);
         self.node_counter += 1;
     }
 
     pub fn revert(&mut self) {
-        self.get_current_branch().revert();
+        self.current_branch_mut().revert();
         self.node_counter += 1;
     }
 
@@ -47,8 +63,8 @@ impl Repo {
     }
 
     pub fn new_branch(&mut self, branch_name: &str) {
-        let new_branch = Branch::new(branch_name);
-
+        let current_branch = self.current_branch_mut();
+        let new_branch = Branch::new_from_branch(branch_name, current_branch);
         self.branch_list.push(new_branch);
         self.checkout(branch_name);
     }
@@ -62,7 +78,14 @@ impl Repo {
         None
     }
 
-    fn get_current_branch(&mut self) -> &mut Branch {
+    fn current_branch_mut(&mut self) -> &mut Branch {
         &mut self.branch_list[self.current_branch_idx]
+    }
+
+    fn current_branch(&self) -> &Branch {
+        &self.branch_list[self.current_branch_idx]
+    }
+
+    pub fn test(&mut self) {
     }
 }

@@ -3,6 +3,7 @@
 ### Goals
 
 This project acts as a first Rust project. Its goal will be to create a simple repository system, that will be the core of a future visualization system.
+However, it will not track changes in files like actual git.
 
 ### Roadmap
 
